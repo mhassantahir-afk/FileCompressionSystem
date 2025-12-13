@@ -10,6 +10,9 @@ public:
     
     // Constructor
     HuffmanNode(char c, int f);
+
+    // Check if node is a leaf node
+    bool isLeaf() const;
 };
 
 #endif // HUFFMANNODE_H

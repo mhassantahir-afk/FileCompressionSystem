@@ -1,18 +1,15 @@
 //
 // Created by Mrjoe on 12/11/2025.
 //
-class HuffmanNode
-{
-public:
-    char ch;
-    int freq;
-    HuffmanNode* left;
-    HuffmanNode* right;
+#include "datastructures/HuffmanNode.h"
 
-    HuffmanNode(char c, int f)
-    {
-        ch = c;
-        freq = f;
-        left = right = nullptr;
-    }
-};
+HuffmanNode::HuffmanNode(char c, int f) {
+    ch = c;
+    freq = f;
+    left = right = nullptr;
+}
+
+// Check if node is leaf
+bool HuffmanNode::isLeaf() const {
+    return !(left) && !(right);
+}
