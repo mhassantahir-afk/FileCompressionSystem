@@ -1,3 +1,5 @@
+#include"HuffmanNode"
+
 class MinHeapTree
 {
 public:
