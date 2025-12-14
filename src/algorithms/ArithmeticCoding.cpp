@@ -1,148 +1,133 @@
-//
-//  main.cpp
-//  ArithmeticCodng
-//
-//  Created by Huzaifa Rauf on 12/12/2025.
-//
-
+#include "algorithms/ArithmeticCoding.h"
 #include <iostream>
 #include <fstream>
 using namespace std;
 
-class ArithmeticCoding {
-public:
-    struct Symbol {
-        unsigned char ch;
-        double low;
-        double high;
-    };
+ArithmeticCoding::ArithmeticCoding() {
+    size = 256;
+    for (int i = 0; i < 256; i++) freq[i] = 1.0 / 256.0;
+    buildTable();
+}
 
-    double freq[256];
-    Symbol table[256];
-    int size;
-
-    ArithmeticCoding() {
-        size = 256;
-        for (int i = 0; i < 256; i++) freq[i] = 1.0 / 256.0;
-        buildTable();
+void ArithmeticCoding::buildTable() {
+    long double cumulative = 0;
+    for (int i = 0; i < size; i++) {
+        table[i].ch = (unsigned char)i;
+        table[i].low = cumulative;
+        table[i].high = cumulative + freq[i];
+        cumulative += freq[i];
     }
+}
 
-    void buildTable() {
-        double cumulative = 0;
+void ArithmeticCoding::calculateFrequencies(const char* filename, int &fileSize) {
+    for (int i = 0; i < 256; i++) freq[i] = 0;
+
+    ifstream fin(filename, ios::binary);
+    unsigned char ch;
+    fileSize = 0;
+
+    while (fin.read((char*)&ch, 1)) {
+        freq[ch]++;
+        fileSize++;
+    }
+    fin.close();
+
+    if (fileSize == 0) fileSize = 1;
+
+    for (int i = 0; i < 256; i++) freq[i] /= fileSize;
+
+    buildTable();
+}
+
+long double ArithmeticCoding::encodeFile(const char* filename) {
+    ifstream fin(filename, ios::binary);
+    unsigned char ch;
+
+    long double low = 0, high = 1;
+
+    while (fin.read((char*)&ch, 1)) {
+        long double range = high - low;
+        high = low + range * table[ch].high;
+        low = low + range * table[ch].low;
+    }
+    fin.close();
+
+    return (low + high) / 2;
+}
+
+void ArithmeticCoding::decodeToFile(long double code, int length, const char* outname) {
+    ofstream fout(outname, ios::binary);
+
+    for (int k = 0; k < length; k++) {
+        bool found = false;
         for (int i = 0; i < size; i++) {
-            table[i].ch = (unsigned char)i;
-            table[i].low = cumulative;
-            table[i].high = cumulative + freq[i];
-            cumulative += freq[i];
-        }
-    }
+            if (code >= table[i].low && code < table[i].high) {
+                unsigned char ch = (unsigned char)i;
+                fout.write((char*)&ch, 1);
 
-    void calculateFrequencies(const char* filename, int &fileSize) {
-        for (int i = 0; i < 256; i++) freq[i] = 0;
+                long double l = table[i].low;
+                long double h = table[i].high;
 
-        ifstream fin(filename, ios::binary);
-        unsigned char ch;
-        fileSize = 0;
-
-        while (fin.read((char*)&ch, 1)) {
-            freq[ch]++;
-            fileSize++;
-        }
-        fin.close();
-
-        if (fileSize == 0) fileSize = 1;
-
-        for (int i = 0; i < 256; i++) freq[i] /= fileSize;
-
-        buildTable();
-    }
-
-    double encodeFile(const char* filename) {
-        ifstream fin(filename, ios::binary);
-        unsigned char ch;
-
-        double low = 0, high = 1;
-
-        while (fin.read((char*)&ch, 1)) {
-            double range = high - low;
-            high = low + range * table[ch].high;
-            low = low + range * table[ch].low;
-        }
-        fin.close();
-
-        return (low + high) / 2;
-    }
-
-    void decodeToFile(double code, int length, const char* outname) {
-        ofstream fout(outname, ios::binary);
-
-        for (int k = 0; k < length; k++) {
-            for (int i = 0; i < size; i++) {
-                if (code >= table[i].low && code < table[i].high) {
-                    unsigned char ch = (unsigned char)i;
-                    fout.write((char*)&ch, 1);
-
-                    double l = table[i].low;
-                    double h = table[i].high;
-
+                if (h - l > 0) {  // Prevent division by zero
                     code = (code - l) / (h - l);
-                    break;
+                } else {
+                    cerr << "Error: Range became zero at position " << k << endl;
                 }
+
+                found = true;
+                break;
             }
         }
 
-        fout.close();
+        if (!found) {
+            cerr << "Error: Could not decode character at position " << k << endl;
+            break;
+        }
     }
 
-    void compress(const char* input, const char* output) {
-        int length = 0;
-        calculateFrequencies(input, length);
+    fout.close();
+}
 
-        double encodedNumber = encodeFile(input);
+void ArithmeticCoding::compress(const char* input, const char* output) {
+    int length = 0;
+    calculateFrequencies(input, length);
 
-        ofstream fout(output, ios::binary);
-
-        for (int i = 0; i < 256; i++)
-            fout.write((char*)&freq[i], sizeof(double));
-
-        fout.write((char*)&length, sizeof(int));
-        fout.write((char*)&encodedNumber, sizeof(double));
-
-        fout.close();
+    if (length == 0) {
+        cerr << "Error: Input file is empty or couldn't be read!" << endl;
+        return;
     }
 
-    void decompress(const char* input, const char* output) {
-        ifstream fin(input, ios::binary);
+    long double encodedNumber = encodeFile(input);
 
-        for (int i = 0; i < 256; i++)
-            fin.read((char*)&freq[i], sizeof(double));
+    cout << "Original file size: " << length << " bytes" << endl;
+    cout << "Encoded number: " << encodedNumber << endl;
 
-        int length;
-        double code;
+    ofstream fout(output, ios::binary);
 
-        fin.read((char*)&length, sizeof(int));
-        fin.read((char*)&code, sizeof(double));
+    for (int i = 0; i < 256; i++)
+        fout.write((char*)&freq[i], sizeof(long double));
 
-        fin.close();
+    fout.write((char*)&length, sizeof(int));
+    fout.write((char*)&encodedNumber, sizeof(long double));
 
-        buildTable();
+    fout.close();
+}
 
-        decodeToFile(code, length, output);
-    }
-};
+void ArithmeticCoding::decompress(const char* input, const char* output) {
+    ifstream fin(input, ios::binary);
 
-int main() {
-    ArithmeticCoding ac;
+    for (int i = 0; i < 256; i++)
+        fin.read((char*)&freq[i], sizeof(long double));
 
-    const char* inputFile = "input.txt";
-    const char* compressed = "compressed.bin";
-  //  const char* decompressed = "output.txt";
+    int length;
+    long double code;
 
-    ac.compress(inputFile, compressed);
-    cout << "File compressed to compressed.bin\n";
+    fin.read((char*)&length, sizeof(int));
+    fin.read((char*)&code, sizeof(long double));
 
- //   ac.decompress(compressed, decompressed);
-    cout << "File decompressed to output.txt\n";
+    fin.close();
 
-    return 0;
+    buildTable();
+
+    decodeToFile(code, length, output);
 }

@@ -24,4 +24,19 @@ add_executable(FileCompressionSystem frontend/main.cpp
         include/datastructures/MinHeapTree.h
         include/datastructures/HuffmanNode.h
         include/datastructures/TrieNode.h
-        include/datastructures/Trie.h)
+        include/datastructures/Trie.h
+        tests/TestHuffman.cpp
+        include/algorithms/huffman.h
+        tests/TestArithmetic.cpp
+        include/algorithms/ArithmeticCoding.h)
+
+add_executable(HuffmanTest
+        tests/TestHuffman.cpp
+        src/algorithms/huffman.cpp
+        src/datastructures/HuffmanNode.cpp
+)
+
+add_executable(TestArithmetic
+        tests/TestArithmetic.cpp
+        src/algorithms/ArithmeticCoding.cpp
+)
