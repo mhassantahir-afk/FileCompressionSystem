@@ -1,10 +1,11 @@
 #include <fstream>
 #include <string>
+#include"datastructures/Trie.h"
+#include"datastructures/HashTable.h"
+#include"algorithms/LZW.h"
 using namespace std;
 
-class LZW {
-public:
-    void compress(const string& inputFile, const string& outputFile, Trie& trie) {
+void LZW::compress(const string& inputFile, const string& outputFile, Trie& trie) {
         ifstream in(inputFile, ios::binary);
         ofstream out(outputFile, ios::binary);
 
@@ -41,7 +42,7 @@ public:
         out.close();
     }
 
-    void decompress(const string& inputFile, const string& outputFile, HashTable& table) {
+void LZW::decompress(const string& inputFile, const string& outputFile, HashTable& table) {
         ifstream in(inputFile, ios::binary);
         ofstream out(outputFile, ios::binary);
 
@@ -49,31 +50,30 @@ public:
         for (int i = 0; i < 256; i++) {
             string s = "";
             s += char(i);
-            table.insertKey(to_string(nextCode++), s);
+            table.insert(to_string(nextCode++), s);
         }
 
         int oldCode, newCode;
         if (!in.read((char*)&oldCode, sizeof(oldCode)))
             return;
 
-        string s = table.searchKey(to_string(oldCode));
+        string s = table.get(to_string(oldCode));
         out << s;
 
         string c = "";
         c += s[0];
 
         while (in.read((char*)&newCode, sizeof(newCode))) {
-            string entry = table.searchKey(to_string(newCode));
+            string entry = table.get(to_string(newCode));
             if (entry == "")
                 entry = s + c;
 
             out << entry;
             c = entry[0];
-            table.insertKey(to_string(nextCode++), s + c);
+            table.insert(to_string(nextCode++), s + c);
             s = entry;
         }
 
         in.close();
         out.close();
     }
-};

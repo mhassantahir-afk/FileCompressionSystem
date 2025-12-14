@@ -1,30 +1,25 @@
 // MUbashir Ali
 // DSA project
+#include <string>
+#include <iostream>
+#include"datastructures/Trie.h"
+#include"datastructures/TrieNode.h"
 
-class TrieNode {
-public:
-    int index;                 // dictionary index (LZW/LZ78 use this)
-    TrieNode* child[256];      // ASCII children
+using namespace std;
 
-    TrieNode() {
+TrieNode::TrieNode() {
         index = -1;           
         for (int i = 0; i < 256; i++)
             child[i] = NULL;
-    }
-};
+}
 
-class Trie {
-public:
-    TrieNode* root;
-    int nextIndex;             
-
-    Trie() {
+Trie::Trie() {
         root = new TrieNode();
         nextIndex = 1;         
     }
 
     // Insert a string (used in LZW/LZ78 dictionary building)
-    int insertAndGetIndex(const string& s) {
+    int Trie::insertAndGetIndex(const string &s) {
         TrieNode* current = root;
 
         for (int i = 0; i < s.length(); i++) {
@@ -44,7 +39,7 @@ public:
     }
 
     // Check if a string already exists (returns index)
-    int search(const string& s) {
+    int Trie::search(const string& s) {
         TrieNode* current = root;
 
         for (int i = 0; i < s.length(); i++) {
@@ -60,7 +55,7 @@ public:
     }
 
     // Longest prefix used in LZW compression
-    int longestPrefix(const string& text, int start, int& lengthOut) {
+    int Trie::longestPrefix(const string& text, int start, int& lengthOut) {
         TrieNode* current = root;
         int lastIndex = -1;
         lengthOut = 0;
@@ -82,7 +77,7 @@ public:
     }
 
     // Print entire dictionary (optional)
-    void printAll(TrieNode* node, string prefix) {
+    void Trie::printAll(TrieNode* node, string prefix) {
         if (!node) return;
 
         if (node->index != -1)
@@ -94,7 +89,6 @@ public:
         }
     }
 
-    void printDictionary() {
+    void Trie::printDictionary() {
         printAll(root, "");
     }
-};
