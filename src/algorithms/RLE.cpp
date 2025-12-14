@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#define MAX_RUN 255
+//#define MAX_RUN 255
 
 void rleCompressFile(const char* inputFile, const char* outputFile) {
     ifstream in(inputFile, ios::binary);

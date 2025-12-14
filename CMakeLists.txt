@@ -31,7 +31,8 @@ add_executable(FileCompressionSystem frontend/main.cpp
         include/algorithms/ArithmeticCoding.h
         include/algorithms/lz77.h
         include/algorithms/RLE.h
-        tests/Testlz77.cpp)
+        tests/Testlz77.cpp
+        tests/TestRLE.cpp)
 
 add_executable(HuffmanTest
         tests/TestHuffman.cpp
@@ -47,4 +48,9 @@ add_executable(TestArithmetic
 add_executable(TestLZ77
         tests/TestLZ77.cpp
         src/algorithms/LZ77.cpp
+)
+
+add_executable(TestRLE
+        tests/TestRLE.cpp
+        src/algorithms/RLE.cpp
 )
