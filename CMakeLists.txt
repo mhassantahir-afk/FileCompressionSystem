@@ -32,7 +32,9 @@ add_executable(FileCompressionSystem frontend/main.cpp
         include/algorithms/lz77.h
         include/algorithms/RLE.h
         tests/Testlz77.cpp
-        tests/TestRLE.cpp)
+        tests/TestRLE.cpp
+        include/algorithms/deflate.h
+        tests/TestDeflate.cpp)
 
 add_executable(HuffmanTest
         tests/TestHuffman.cpp
@@ -54,4 +56,13 @@ add_executable(TestLZ77
 add_executable(TestRLE
         tests/TestRLE.cpp
         src/algorithms/RLE.cpp
+)
+
+add_executable(TestDeflate
+        tests/TestDeflate.cpp
+        src/algorithms/Deflate.cpp
+        src/algorithms/lz77.cpp
+        src/algorithms/huffman.cpp
+        src/datastructures/HuffmanNode.cpp
+        src/datastructures/MinHeap.cpp
 )

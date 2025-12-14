@@ -53,12 +53,11 @@ void storeCodes(HuffmanNode* root, int arr[], int top, char codes[][MAX_TREE_HT]
 }
 
 // Encode text
-char* encode(const char* text, char codes[][MAX_TREE_HT], int* encodedLen) {
-    int len = strlen(text);
-    char* encoded = new char[len * MAX_TREE_HT];
+char* encode(const char* text, int textLen, char codes[][MAX_TREE_HT], int* encodedLen) {
+    char* encoded = new char[textLen * MAX_TREE_HT];
     int pos = 0;
 
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < textLen; i++) {
         int idx = (unsigned char)text[i];
         int j = 0;
         while (codes[idx][j] != '\0')
@@ -172,7 +171,7 @@ void compressFile(const char* inputFile, const char* outputFile) {
 
     // Step 5: Encode the text
     int encodedLen;
-    char* encoded = encode(content.c_str(), codes, &encodedLen);
+    char* encoded = encode(content.c_str(), content.length(), codes, &encodedLen);
 
     // Step 6: Write to output file
     ofstream outFile(outputFile, ios::binary);
