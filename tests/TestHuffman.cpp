@@ -10,10 +10,10 @@ int main() {
     cout << "Testing Huffman Compression..." << endl;
 
     // Compress your file
-    compressFile("../resources/TestFiles/uncompressed/uncompressed_1.txt", "../resources/TestFiles/compressed/FileOutofTestHuffman_1.huff");
+    compressFile("../resources/TestFiles/uncompressed/uncompressed_1.txt", "../resources/TestFiles/compressed/CompressedFileOutofTestHuffman_1.huff");
 
     // Decompress it back
-    decompressFile("../resources/TestFiles/compressed/FileOutofTestHuffman_1.huff", "../resources/TestFiles/uncompressed/FileOutofTestHuffman_1.txt");
+    decompressFile("../resources/TestFiles/compressed/CompressedFileOutofTestHuffman_1.huff", "../resources/TestFiles/uncompressed/UncompressedFileOutofTestHuffman_1.txt");
 
     cout << "Done! Check the restored.txt file." << endl;
 

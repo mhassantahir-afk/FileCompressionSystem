@@ -38,6 +38,7 @@ add_executable(HuffmanTest
         tests/TestHuffman.cpp
         src/algorithms/huffman.cpp
         src/datastructures/HuffmanNode.cpp
+        src/datastructures/MinHeap.cpp
 )
 
 add_executable(TestArithmetic

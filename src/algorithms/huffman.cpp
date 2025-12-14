@@ -2,111 +2,33 @@
 #include <fstream>
 #include <cstring>
 #include "datastructures/HuffmanNode.h"
+#include "datastructures/MinHeapTree.h"
 #define MAX_TREE_HT 256
 
 using namespace std;
 
-// Min Heap Node
-struct MinHeap {
-    int size;
-    int capacity;
-    HuffmanNode** array;
-};
-
-// Create a min heap
-MinHeap* createMinHeap(int capacity) {
-    MinHeap* minHeap = new MinHeap;
-    minHeap->size = 0;
-    minHeap->capacity = capacity;
-    minHeap->array = new HuffmanNode*[capacity];
-    return minHeap;
-}
-
-// Swap two nodes
-void swapNode(HuffmanNode** a, HuffmanNode** b) {
-    HuffmanNode* t = *a;
-    *a = *b;
-    *b = t;
-}
-
-// Heapify function
-void minHeapify(MinHeap* minHeap, int idx) {
-    int smallest = idx;
-    int left = 2 * idx + 1;
-    int right = 2 * idx + 2;
-
-    if (left < minHeap->size && minHeap->array[left]->freq < minHeap->array[smallest]->freq)
-        smallest = left;
-
-    if (right < minHeap->size && minHeap->array[right]->freq < minHeap->array[smallest]->freq)
-        smallest = right;
-
-    if (smallest != idx) {
-        swapNode(&minHeap->array[smallest], &minHeap->array[idx]);
-        minHeapify(minHeap, smallest);
-    }
-}
-
-// Check if size is 1
-bool isSizeOne(MinHeap* minHeap) {
-    return (minHeap->size == 1);
-}
-
-// Extract minimum node
-HuffmanNode* extractMin(MinHeap* minHeap) {
-    HuffmanNode* temp = minHeap->array[0];
-    minHeap->array[0] = minHeap->array[minHeap->size - 1];
-    --minHeap->size;
-    minHeapify(minHeap, 0);
-    return temp;
-}
-
-// Insert a node into min heap
-void insertMinHeap(MinHeap* minHeap, HuffmanNode* node) {
-    ++minHeap->size;
-    int i = minHeap->size - 1;
-
-    while (i && node->freq < minHeap->array[(i - 1) / 2]->freq) {
-        minHeap->array[i] = minHeap->array[(i - 1) / 2];
-        i = (i - 1) / 2;
-    }
-    minHeap->array[i] = node;
-}
-
-// Build min heap
-void buildMinHeap(MinHeap* minHeap) {
-    int n = minHeap->size - 1;
-    for (int i = (n - 1) / 2; i >= 0; --i)
-        minHeapify(minHeap, i);
-}
-
-// Create and build min heap
-MinHeap* createAndBuildMinHeap(char data[], int freq[], int size) {
-    MinHeap* minHeap = createMinHeap(size);
-    for (int i = 0; i < size; ++i)
-        minHeap->array[i] = new HuffmanNode(data[i], freq[i]);
-    minHeap->size = size;
-    buildMinHeap(minHeap);
-    return minHeap;
-}
-
-// Build Huffman Tree
+// Build Huffman Tree using MinHeapTree
 HuffmanNode* buildHuffmanTree(char data[], int freq[], int size) {
-    HuffmanNode *left, *right, *top;
-    MinHeap* minHeap = createAndBuildMinHeap(data, freq, size);
+    MinHeapTree minHeap;
 
-    while (!isSizeOne(minHeap)) {
-        left = extractMin(minHeap);
-        right = extractMin(minHeap);
+    // Insert all characters into the heap
+    for (int i = 0; i < size; i++) {
+        minHeap.insert(new HuffmanNode(data[i], freq[i]));
+    }
 
-        top = new HuffmanNode('$', left->freq + right->freq);
+    // Build the tree
+    while (minHeap.getSize() > 1) {
+        HuffmanNode* left = minHeap.extractMin();
+        HuffmanNode* right = minHeap.extractMin();
+
+        HuffmanNode* top = new HuffmanNode('$', left->freq + right->freq);
         top->left = left;
         top->right = right;
 
-        insertMinHeap(minHeap, top);
+        minHeap.insert(top);
     }
 
-    return extractMin(minHeap);
+    return minHeap.extractMin();
 }
 
 // Store Huffman codes
@@ -239,7 +161,7 @@ void compressFile(const char* inputFile, const char* outputFile) {
         return;
     }
 
-    // Step 3: Build Huffman tree
+    // Step 3: Build Huffman tree using MinHeapTree
     HuffmanNode* root = buildHuffmanTree(data, freqArray, uniqueChars);
 
     // Step 4: Generate Huffman codes
