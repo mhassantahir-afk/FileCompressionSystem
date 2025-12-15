@@ -1,7 +1,6 @@
 #include "algorithms/ArithmeticCoding.h"
 #include "utils/FileIO.h"
 #include <iostream>
-#include <vector>
 using namespace std;
 
 ArithmeticCoding::ArithmeticCoding() {

@@ -12,7 +12,6 @@ add_library(CompressionAlgorithms
         src/algorithms/RLE.cpp
         src/algorithms/Deflate.cpp
         src/algorithms/ArithmeticCoding.cpp
-
         src/datastructures/HuffmanNode.cpp
         src/datastructures/MinHeap.cpp
         src/datastructures/Trie.cpp
@@ -25,6 +24,13 @@ add_executable(FileCompressionSystem
         frontend/main.cpp
 )
 target_link_libraries(FileCompressionSystem
+        PRIVATE CompressionAlgorithms
+)
+
+add_executable(FileCompressionSystemSimple
+        frontend/frontend.cpp
+)
+target_link_libraries(FileCompressionSystemSimple
         PRIVATE CompressionAlgorithms
 )
 

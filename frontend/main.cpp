@@ -30,6 +30,10 @@
 #include "datastructures/Trie.h"
 #include "datastructures/HashTable.h"
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -510,8 +514,10 @@ void performRLEAnalysis(const string& filePath) {
 // ============================================================================
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
     cout << "╔════════════════════════════════════════════════════╗\n";
-    cout << "║     FILE COMPRESSION SYSTEM - COMPARISON TOOL     ║\n";
+    cout << "║     FILE COMPRESSION SYSTEM - COMPARISON TOOL      ║\n";
     cout << "╚════════════════════════════════════════════════════╝\n\n";
 
     // Get input file path
@@ -604,36 +610,4 @@ int main() {
     cout << "\n🎯 Analysis complete!\n";
     cout << "   You can now choose the best algorithm for your needs.\n";
     cout << "════════════════════════════════════════════════════════════\n";
-
-    // Ask if user wants to save results to file
-    cout << "\nSave results to a file? (y/n): ";
-    char saveChoice;
-    cin >> saveChoice;
-
-    if (saveChoice == 'y' || saveChoice == 'Y') {
-        ofstream report("compression_report.txt");
-        if (report) {
-            report << "Compression Algorithm Comparison Report\n";
-            report << "========================================\n\n";
-            report << "Input File: " << inputFilePath << "\n";
-            report << "Original Size: " << fixed << setprecision(2)
-                   << originalSizeKB << " KB\n\n";
-
-            report << "RESULTS:\n";
-            report << "--------\n";
-            for (const auto& result : results) {
-                report << result.name << ": ";
-                if (result.success) {
-                    report << result.compressionRatio << "% compression, "
-                           << result.timeMs << " ms\n";
-                } else {
-                    report << "Failed - " << result.errorMessage << "\n";
-                }
-            }
-            report.close();
-            cout << "   Results saved to 'compression_report.txt'\n";
-        }
-    }
-
-    return 0;
 }
