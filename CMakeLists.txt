@@ -17,6 +17,8 @@ add_library(CompressionAlgorithms
         src/datastructures/MinHeap.cpp
         src/datastructures/Trie.cpp
         src/datastructures/HashTable.cpp
+        src/utils/FileIO.cpp
+        include/utils/FileIO.h
 )
 
 add_executable(FileCompressionSystem

@@ -4,43 +4,32 @@
 #include "algorithms/Deflate.h"
 #include "algorithms/lz77.h"
 #include "algorithms/huffman.h"
+#include "utils/FileIO.h"
 #include <iostream>
-#include <fstream>
-#include <cstring>
+#include <vector>
 
 using namespace std;
 
 const char* Deflate::LZ77_TEMP_FILE = "temp_lz77.tmp";
 
 void Deflate::compress(const char* inputFile, const char* outputFile) {
-    // STEP 1: LZ77 Compression - USE EXISTING LZ77 CLASS
+    // STEP 1: LZ77 Compression
     LZ77 lz77;
     lz77.compress(inputFile, LZ77_TEMP_FILE);
 
     // STEP 2: Read LZ77 output
-    ifstream lz77File(LZ77_TEMP_FILE, ios::binary);
-    if (!lz77File) {
-        cerr << "Error: Cannot read LZ77 temporary file!" << endl;
-        return;
-    }
-
-    string lz77Data((istreambuf_iterator<char>(lz77File)), istreambuf_iterator<char>());
-    lz77File.close();
-
+    string lz77Data = FileIO::readFileString(LZ77_TEMP_FILE);
     if (lz77Data.empty()) {
         cerr << "Error: LZ77 output is empty!" << endl;
         return;
     }
 
-    // STEP 3: Apply Huffman coding - USE EXISTING HUFFMAN FUNCTIONS
-
-    // Count character frequencies
+    // STEP 3: Apply Huffman coding
     int freq[256] = {0};
     for (char c : lz77Data) {
         freq[(unsigned char)c]++;
     }
 
-    // Build frequency arrays
     char data[256];
     int freqArray[256];
     int uniqueChars = 0;
@@ -52,7 +41,6 @@ void Deflate::compress(const char* inputFile, const char* outputFile) {
         }
     }
 
-    // USE EXISTING HUFFMAN FUNCTIONS
     HuffmanNode* root = buildHuffmanTree(data, freqArray, uniqueChars);
 
     char codes[256][MAX_TREE_HT] = {0};
@@ -64,22 +52,18 @@ void Deflate::compress(const char* inputFile, const char* outputFile) {
     char* encoded = encode(lz77Data.c_str(), lz77Data.length(), codes, &encodedLen);
 
     // STEP 4: Write final compressed file
-    ofstream outFile(outputFile, ios::binary);
+    ofstream outFile = FileIO::openOutputFile(outputFile);
     if (!outFile) {
-        cerr << "Error: Cannot create output file!" << endl;
         delete[] encoded;
         return;
     }
 
-    // Write metadata
     int originalLen = lz77Data.length();
-    outFile.write((char*)&originalLen, sizeof(int));
-    outFile.write((char*)&encodedLen, sizeof(int));
+    FileIO::writeInteger(outFile, originalLen);
+    FileIO::writeInteger(outFile, encodedLen);
 
-    // USE EXISTING HUFFMAN FUNCTION
     saveTree(root, outFile);
 
-    // Write encoded data
     for (int i = 0; i < encodedLen; i += 8) {
         unsigned char byte = 0;
         for (int j = 0; j < 8 && i + j < encodedLen; j++) {
@@ -87,49 +71,31 @@ void Deflate::compress(const char* inputFile, const char* outputFile) {
                 byte |= (1 << (7 - j));
             }
         }
-        outFile.put(byte);
+        FileIO::writeChar(outFile, byte);
     }
 
     outFile.close();
     delete[] encoded;
-
-    // Clean up temporary file
-    remove(LZ77_TEMP_FILE);
-
-    // Get file sizes for statistics
-    ifstream origFile(inputFile, ios::binary | ios::ate);
-    int origSize = origFile.tellg();
-    origFile.close();
-
-    ifstream compFile(outputFile, ios::binary | ios::ate);
-    int compSize = compFile.tellg();
-    compFile.close();
+    FileIO::deleteFile(LZ77_TEMP_FILE);
 }
 
 void Deflate::decompress(const char* inputFile, const char* outputFile) {
-
-    // STEP 1: Read compressed file and apply Huffman decoding
-
-
-    ifstream inFile(inputFile, ios::binary);
+    ifstream inFile = FileIO::openInputFile(inputFile);
     if (!inFile) {
-        cerr << "Error: Cannot open input file!" << endl;
         return;
     }
 
-    // Read metadata
-    int originalLen, encodedLen;
-    inFile.read((char*)&originalLen, sizeof(int));
-    inFile.read((char*)&encodedLen, sizeof(int));
+    int originalLen = FileIO::readInteger<int>(inFile);
+    int encodedLen = FileIO::readInteger<int>(inFile);
 
-    // USE EXISTING HUFFMAN FUNCTION
     HuffmanNode* root = loadTree(inFile);
 
-    // Read encoded data
     char* encoded = new char[encodedLen + 1];
     int pos = 0;
-    char byte;
-    while (inFile.get(byte) && pos < encodedLen) {
+    unsigned char byte;
+
+    while (inFile && pos < encodedLen) {
+        byte = FileIO::readChar(inFile);
         for (int i = 7; i >= 0 && pos < encodedLen; i--) {
             encoded[pos++] = ((byte >> i) & 1) ? '1' : '0';
         }
@@ -137,20 +103,15 @@ void Deflate::decompress(const char* inputFile, const char* outputFile) {
     encoded[encodedLen] = '\0';
     inFile.close();
 
-    // USE EXISTING HUFFMAN FUNCTION
     char* decoded = decode(root, encoded, originalLen);
     delete[] encoded;
 
-    // Write LZ77 data to temporary file
-    ofstream lz77TempFile(LZ77_TEMP_FILE, ios::binary);
-    lz77TempFile.write(decoded, originalLen);
-    lz77TempFile.close();
+    vector<unsigned char> tempData(decoded, decoded + originalLen);
+    FileIO::writeFileBinary(LZ77_TEMP_FILE, tempData);
     delete[] decoded;
 
-    // STEP 2: Apply LZ77 decompression - USE EXISTING LZ77 CLASS
     LZ77 lz77;
     lz77.decompress(LZ77_TEMP_FILE, outputFile);
 
-    // Clean up temporary file
-    remove(LZ77_TEMP_FILE);
+    FileIO::deleteFile(LZ77_TEMP_FILE);
 }

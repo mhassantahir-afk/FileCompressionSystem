@@ -1,8 +1,9 @@
 #include <iostream>
-#include <fstream>
-#include <cstring>
+#include <vector>
 #include "datastructures/HuffmanNode.h"
 #include "datastructures/MinHeapTree.h"
+#include "algorithms/huffman.h"
+#include "utils/FileIO.h"
 #define MAX_TREE_HT 256
 
 using namespace std;
@@ -11,20 +12,16 @@ using namespace std;
 HuffmanNode* buildHuffmanTree(char data[], int freq[], int size) {
     MinHeapTree minHeap;
 
-    // Insert all characters into the heap
     for (int i = 0; i < size; i++) {
         minHeap.insert(new HuffmanNode(data[i], freq[i]));
     }
 
-    // Build the tree
     while (minHeap.getSize() > 1) {
         HuffmanNode* left = minHeap.extractMin();
         HuffmanNode* right = minHeap.extractMin();
-
         HuffmanNode* top = new HuffmanNode('$', left->freq + right->freq);
         top->left = left;
         top->right = right;
-
         minHeap.insert(top);
     }
 
@@ -88,15 +85,15 @@ char* decode(HuffmanNode* root, const char* encoded, int textLen) {
     return decoded;
 }
 
-// Save Huffman tree structure to file (preorder traversal)
+// Save Huffman tree structure to file
 void saveTree(HuffmanNode* root, ofstream& outFile) {
     if (root == nullptr) return;
 
     if (root->isLeaf()) {
-        outFile.put('1');  // Leaf node marker
-        outFile.put(root->ch);  // Character
+        FileIO::writeChar(outFile, '1');
+        FileIO::writeChar(outFile, root->ch);
     } else {
-        outFile.put('0');  // Internal node marker
+        FileIO::writeChar(outFile, '0');
         saveTree(root->left, outFile);
         saveTree(root->right, outFile);
     }
@@ -104,14 +101,12 @@ void saveTree(HuffmanNode* root, ofstream& outFile) {
 
 // Load Huffman tree structure from file
 HuffmanNode* loadTree(ifstream& inFile) {
-    char marker;
-    inFile.get(marker);
+    char marker = FileIO::readChar(inFile);
 
-    if (marker == '1') {  // Leaf node
-        char ch;
-        inFile.get(ch);
+    if (marker == '1') {
+        char ch = FileIO::readChar(inFile);
         return new HuffmanNode(ch, 0);
-    } else {  // Internal node
+    } else {
         HuffmanNode* node = new HuffmanNode('$', 0);
         node->left = loadTree(inFile);
         node->right = loadTree(inFile);
@@ -121,29 +116,17 @@ HuffmanNode* loadTree(ifstream& inFile) {
 
 // Compress file
 void compressFile(const char* inputFile, const char* outputFile) {
-    // Step 1: Read input file
-    ifstream inFile(inputFile, ios::binary);
-    if (!inFile) {
-        cerr << "Error: Cannot open input file: " << inputFile << endl;
-        return;
-    }
-
-    // Read entire file content
-    string content((istreambuf_iterator<char>(inFile)), istreambuf_iterator<char>());
-    inFile.close();
-
+    string content = FileIO::readFileString(inputFile);
     if (content.empty()) {
-        cerr << "Error: Input file is empty" << endl;
+        cerr << "Error: Input file is empty or cannot be read: " << inputFile << endl;
         return;
     }
 
-    // Step 2: Count character frequencies
     int freq[256] = {0};
     for (char c : content) {
         freq[(unsigned char)c]++;
     }
 
-    // Count unique characters
     char data[256];
     int freqArray[256];
     int uniqueChars = 0;
@@ -160,38 +143,28 @@ void compressFile(const char* inputFile, const char* outputFile) {
         return;
     }
 
-    // Step 3: Build Huffman tree using MinHeapTree
     HuffmanNode* root = buildHuffmanTree(data, freqArray, uniqueChars);
 
-    // Step 4: Generate Huffman codes
     char codes[256][MAX_TREE_HT] = {0};
     int codeLen[256] = {0};
     int arr[MAX_TREE_HT];
     storeCodes(root, arr, 0, codes, codeLen);
 
-    // Step 5: Encode the text
     int encodedLen;
     char* encoded = encode(content.c_str(), content.length(), codes, &encodedLen);
 
-    // Step 6: Write to output file
-    ofstream outFile(outputFile, ios::binary);
+    ofstream outFile = FileIO::openOutputFile(outputFile);
     if (!outFile) {
-        cerr << "Error: Cannot open output file: " << outputFile << endl;
         delete[] encoded;
         return;
     }
 
-    // Write original text length
     int originalLen = content.length();
-    outFile.write((char*)&originalLen, sizeof(int));
+    FileIO::writeInteger(outFile, originalLen);
+    FileIO::writeInteger(outFile, encodedLen);
 
-    // Write encoded length
-    outFile.write((char*)&encodedLen, sizeof(int));
-
-    // Write tree structure
     saveTree(root, outFile);
 
-    // Write encoded data (convert binary string to bytes)
     for (int i = 0; i < encodedLen; i += 8) {
         unsigned char byte = 0;
         for (int j = 0; j < 8 && i + j < encodedLen; j++) {
@@ -199,7 +172,7 @@ void compressFile(const char* inputFile, const char* outputFile) {
                 byte |= (1 << (7 - j));
             }
         }
-        outFile.put(byte);
+        FileIO::writeChar(outFile, byte);
     }
 
     outFile.close();
@@ -208,29 +181,22 @@ void compressFile(const char* inputFile, const char* outputFile) {
 
 // Decompress file
 void decompressFile(const char* inputFile, const char* outputFile) {
-    // Step 1: Read compressed file
-    ifstream inFile(inputFile, ios::binary);
+    ifstream inFile = FileIO::openInputFile(inputFile);
     if (!inFile) {
-        cerr << "Error: Cannot open input file: " << inputFile << endl;
         return;
     }
 
-    // Read original text length
-    int originalLen;
-    inFile.read((char*)&originalLen, sizeof(int));
+    int originalLen = FileIO::readInteger<int>(inFile);
+    int encodedLen = FileIO::readInteger<int>(inFile);
 
-    // Read encoded length
-    int encodedLen;
-    inFile.read((char*)&encodedLen, sizeof(int));
-
-    // Step 2: Reconstruct Huffman tree
     HuffmanNode* root = loadTree(inFile);
 
-    // Step 3: Read encoded data and convert to binary string
     char* encoded = new char[encodedLen + 1];
     int pos = 0;
-    char byte;
-    while (inFile.get(byte) && pos < encodedLen) {
+    unsigned char byte;
+
+    while (inFile && pos < encodedLen) {
+        byte = FileIO::readChar(inFile);
         for (int i = 7; i >= 0 && pos < encodedLen; i--) {
             encoded[pos++] = ((byte >> i) & 1) ? '1' : '0';
         }
@@ -238,20 +204,10 @@ void decompressFile(const char* inputFile, const char* outputFile) {
     encoded[encodedLen] = '\0';
     inFile.close();
 
-    // Step 4: Decode the data
     char* decoded = decode(root, encoded, originalLen);
 
-    // Step 5: Write to output file
-    ofstream outFile(outputFile, ios::binary);
-    if (!outFile) {
-        cerr << "Error: Cannot open output file: " << outputFile << endl;
-        delete[] encoded;
-        delete[] decoded;
-        return;
-    }
-
-    outFile.write(decoded, originalLen);
-    outFile.close();
+    vector<unsigned char> outputData(decoded, decoded + originalLen);
+    FileIO::writeFileBinary(outputFile, outputData);
 
     delete[] encoded;
     delete[] decoded;

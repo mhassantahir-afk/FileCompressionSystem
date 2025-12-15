@@ -1,60 +1,65 @@
 // Mubashir
-//DSA project (14 dec )
+// DSA project (14 dec )
 #include "algorithms/RLE.h"
+#include "utils/FileIO.h"
 #include <iostream>
-#include <fstream>
+#include <vector>
 
 using namespace std;
 
-//#define MAX_RUN 255
-
 void rleCompressFile(const char* inputFile, const char* outputFile) {
-    ifstream in(inputFile, ios::binary);
-    ofstream out(outputFile, ios::binary);
+    ifstream in = FileIO::openInputFile(inputFile);
+    ofstream out = FileIO::openOutputFile(outputFile);
 
     if (!in || !out) {
-        cout << "File error\n";
         return;
     }
 
-    char prev, curr;
+    unsigned char prev, curr;
     unsigned char count = 1;
 
-    in.get(prev);
+    prev = FileIO::readChar(in);
 
-    while (in.get(curr)) {
-        if (curr == prev && count < MAX_RUN) {
-            count++;
-        } else {
-            out.write((char*)&count, 1);
-            out.write(&prev, 1);
-            prev = curr;
-            count = 1;
+    while (in) {
+        curr = FileIO::readChar(in);
+        if (in) {
+            if (curr == prev && count < MAX_RUN) {
+                count++;
+            } else {
+                FileIO::writeChar(out, count);
+                FileIO::writeChar(out, prev);
+                prev = curr;
+                count = 1;
+            }
         }
     }
 
-    out.write((char*)&count, 1);
-    out.write(&prev, 1);
+    FileIO::writeChar(out, count);
+    FileIO::writeChar(out, prev);
 
     in.close();
     out.close();
 }
 
 void rleDecompressFile(const char* inputFile, const char* outputFile) {
-    ifstream in(inputFile, ios::binary);
-    ofstream out(outputFile, ios::binary);
+    ifstream in = FileIO::openInputFile(inputFile);
+    ofstream out = FileIO::openOutputFile(outputFile);
 
     if (!in || !out) {
-        cout << "File error\n";
         return;
     }
 
     unsigned char count;
-    char ch;
+    unsigned char ch;
 
-    while (in.read((char*)&count, 1) && in.read(&ch, 1)) {
-        for (int i = 0; i < count; i++)
-            out.write(&ch, 1);
+    while (in) {
+        count = FileIO::readChar(in);
+        if (in) {
+            ch = FileIO::readChar(in);
+            for (int i = 0; i < count; i++) {
+                FileIO::writeChar(out, ch);
+            }
+        }
     }
 
     in.close();
@@ -62,28 +67,30 @@ void rleDecompressFile(const char* inputFile, const char* outputFile) {
 }
 
 void analyzeFileForRLE(const char* inputFile) {
-    ifstream in(inputFile, ios::binary);
+    ifstream in = FileIO::openInputFile(inputFile);
     if (!in) {
-        cout << "File error\n";
         return;
     }
 
-    char prev, curr;
+    unsigned char prev, curr;
     int fileSize = 0, totalRuns = 0, longRuns = 0, maxRun = 0, count = 1;
 
-    in.get(prev);
+    prev = FileIO::readChar(in);
     fileSize++;
 
-    while (in.get(curr)) {
-        fileSize++;
-        if (curr == prev) {
-            count++;
-        } else {
-            totalRuns++;
-            if (count >= 3) longRuns++;
-            if (count > maxRun) maxRun = count;
-            prev = curr;
-            count = 1;
+    while (in) {
+        curr = FileIO::readChar(in);
+        if (in) {
+            fileSize++;
+            if (curr == prev) {
+                count++;
+            } else {
+                totalRuns++;
+                if (count >= 3) longRuns++;
+                if (count > maxRun) maxRun = count;
+                prev = curr;
+                count = 1;
+            }
         }
     }
 
@@ -92,13 +99,4 @@ void analyzeFileForRLE(const char* inputFile) {
     if (count > maxRun) maxRun = count;
 
     in.close();
-
-    /*cout << "\nFile size: " << fileSize << " bytes\n";
-    cout << "Total runs: " << totalRuns << "\n";
-    cout << "Max run length: " << maxRun << "\n";
-
-    if (longRuns > totalRuns / 3)
-        cout << "RLE suitable\n";
-    else
-        cout << "Use Huffman\n";*/
 }
