@@ -99,9 +99,6 @@ void ArithmeticCoding::compress(const char* input, const char* output) {
 
     long double encodedNumber = encodeFile(input);
 
-    cout << "Original file size: " << length << " bytes" << endl;
-    cout << "Encoded number: " << encodedNumber << endl;
-
     ofstream fout(output, ios::binary);
 
     for (int i = 0; i < 256; i++)

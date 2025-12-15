@@ -38,8 +38,6 @@ void rleCompressFile(const char* inputFile, const char* outputFile) {
 
     in.close();
     out.close();
-
-    cout << "RLE Compression Complete\n";
 }
 
 void rleDecompressFile(const char* inputFile, const char* outputFile) {
@@ -61,8 +59,6 @@ void rleDecompressFile(const char* inputFile, const char* outputFile) {
 
     in.close();
     out.close();
-
-    cout << "RLE Decompression Complete\n";
 }
 
 void analyzeFileForRLE(const char* inputFile) {
@@ -97,12 +93,12 @@ void analyzeFileForRLE(const char* inputFile) {
 
     in.close();
 
-    cout << "\nFile size: " << fileSize << " bytes\n";
+    /*cout << "\nFile size: " << fileSize << " bytes\n";
     cout << "Total runs: " << totalRuns << "\n";
     cout << "Max run length: " << maxRun << "\n";
 
     if (longRuns > totalRuns / 3)
         cout << "RLE suitable\n";
     else
-        cout << "Use Huffman\n";
+        cout << "Use Huffman\n";*/
 }

@@ -13,10 +13,7 @@ using namespace std;
 const char* Deflate::LZ77_TEMP_FILE = "temp_lz77.tmp";
 
 void Deflate::compress(const char* inputFile, const char* outputFile) {
-    cout << "\n=== DEFLATE COMPRESSION (LZ77 + Huffman) ===" << endl;
-
     // STEP 1: LZ77 Compression - USE EXISTING LZ77 CLASS
-    cout << "\nStep 1: Applying LZ77 compression..." << endl;
     LZ77 lz77;
     lz77.compress(inputFile, LZ77_TEMP_FILE);
 
@@ -35,10 +32,7 @@ void Deflate::compress(const char* inputFile, const char* outputFile) {
         return;
     }
 
-    cout << "LZ77 intermediate size: " << lz77Data.size() << " bytes" << endl;
-
     // STEP 3: Apply Huffman coding - USE EXISTING HUFFMAN FUNCTIONS
-    cout << "\nStep 2: Applying Huffman coding to LZ77 output..." << endl;
 
     // Count character frequencies
     int freq[256] = {0};
@@ -110,18 +104,12 @@ void Deflate::compress(const char* inputFile, const char* outputFile) {
     ifstream compFile(outputFile, ios::binary | ios::ate);
     int compSize = compFile.tellg();
     compFile.close();
-
-    cout << "\n=== DEFLATE COMPRESSION COMPLETE ===" << endl;
-    cout << "Original file size: " << origSize << " bytes" << endl;
-    cout << "Compressed file size: " << compSize << " bytes" << endl;
-    cout << "Compression ratio: " << (float)compSize / origSize * 100 << "%" << endl;
 }
 
 void Deflate::decompress(const char* inputFile, const char* outputFile) {
-    cout << "\n=== DEFLATE DECOMPRESSION ===" << endl;
 
     // STEP 1: Read compressed file and apply Huffman decoding
-    cout << "\nStep 1: Reading compressed file and decoding Huffman..." << endl;
+
 
     ifstream inFile(inputFile, ios::binary);
     if (!inFile) {
@@ -159,15 +147,10 @@ void Deflate::decompress(const char* inputFile, const char* outputFile) {
     lz77TempFile.close();
     delete[] decoded;
 
-    cout << "Huffman decoding complete. LZ77 data size: " << originalLen << " bytes" << endl;
-
     // STEP 2: Apply LZ77 decompression - USE EXISTING LZ77 CLASS
-    cout << "\nStep 2: Applying LZ77 decompression..." << endl;
     LZ77 lz77;
     lz77.decompress(LZ77_TEMP_FILE, outputFile);
 
     // Clean up temporary file
     remove(LZ77_TEMP_FILE);
-
-    cout << "\n=== DEFLATE DECOMPRESSION COMPLETE ===" << endl;
 }

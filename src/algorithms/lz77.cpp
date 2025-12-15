@@ -81,8 +81,6 @@ void LZ77::compress(const char* input, const char* output) {
     }
 
     fout.close();
-    cout << "LZ77 Compression Complete" << endl;
-    cout << "Original size: " << buffer.size() << " bytes" << endl;
 }
 
 void LZ77::decompress(const char* input, const char* output) {
@@ -125,7 +123,4 @@ void LZ77::decompress(const char* input, const char* output) {
 
     fin.close();
     fout.close();
-
-    cout << "LZ77 Decompression Complete" << endl;
-    cout << "Decompressed size: " << output_buffer.size() << " bytes" << endl;
 }

@@ -204,11 +204,6 @@ void compressFile(const char* inputFile, const char* outputFile) {
 
     outFile.close();
     delete[] encoded;
-
-    cout << "File compressed successfully!" << endl;
-    cout << "Original size: " << originalLen << " bytes" << endl;
-    cout << "Compressed size: " << (encodedLen / 8 + 1) << " bytes (approx)" << endl;
-    cout << "Compression ratio: " << (float)encodedLen / (originalLen * 8) * 100 << "%" << endl;
 }
 
 // Decompress file
@@ -260,7 +255,4 @@ void decompressFile(const char* inputFile, const char* outputFile) {
 
     delete[] encoded;
     delete[] decoded;
-
-    cout << "File decompressed successfully!" << endl;
-    cout << "Decompressed size: " << originalLen << " bytes" << endl;
 }
