@@ -7,6 +7,7 @@ ArithmeticCoding::ArithmeticCoding() {
     size = 256;
     for (int i = 0; i < 256; i++) freq[i] = 1.0 / 256.0;
     buildTable();
+    
 }
 
 void ArithmeticCoding::buildTable() {
