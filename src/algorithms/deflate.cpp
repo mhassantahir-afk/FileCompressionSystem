@@ -1,6 +1,10 @@
 //
-// Created by Mrjoe on 12/15/2025.
+// Created by Hassan on 12/15/2025.
 //
+/*
+ * Hassan Tahir
+ * Hufffman Coding
+ */
 #include "algorithms/Deflate.h"
 #include "algorithms/lz77.h"
 #include "algorithms/huffman.h"

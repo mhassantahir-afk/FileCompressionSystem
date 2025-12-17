@@ -1,5 +1,9 @@
 // Mubashir
 // DSA project (14 dec )
+/*
+ * Mubashir Ali
+ * RLE Algorithm
+ */
 #include "algorithms/RLE.h"
 #include "utils/FileIO.h"
 

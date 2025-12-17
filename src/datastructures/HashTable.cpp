@@ -1,6 +1,7 @@
-//
-// Created by Mrjoe on 12/15/2025.
-//
+/*
+ * Huzaifa Rauf
+ * HashTable
+ */
 #include "datastructures/HashTable.h"
 #include <iostream>
 

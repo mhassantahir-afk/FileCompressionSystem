@@ -1,3 +1,8 @@
+/*
+ * Huzaifa Rauf
+ * ArithmeticCoding
+ */
+
 #include "algorithms/ArithmeticCoding.h"
 #include "utils/FileIO.h"
 #include <iostream>

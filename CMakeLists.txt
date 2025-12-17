@@ -39,21 +39,25 @@ add_executable(HuffmanTest
         src/algorithms/huffman.cpp
         src/datastructures/HuffmanNode.cpp
         src/datastructures/MinHeap.cpp
+        src/utils/FileIO.cpp
 )
 
 add_executable(TestArithmetic
         tests/TestArithmetic.cpp
         src/algorithms/ArithmeticCoding.cpp
+        src/utils/FileIO.cpp
 )
 
 add_executable(TestLZ77
         tests/TestLZ77.cpp
         src/algorithms/LZ77.cpp
+        src/utils/FileIO.cpp
 )
 
 add_executable(TestRLE
         tests/TestRLE.cpp
         src/algorithms/RLE.cpp
+        src/utils/FileIO.cpp
 )
 
 add_executable(TestDeflate
@@ -63,6 +67,7 @@ add_executable(TestDeflate
         src/algorithms/huffman.cpp
         src/datastructures/HuffmanNode.cpp
         src/datastructures/MinHeap.cpp
+        src/utils/FileIO.cpp
 )
 
 add_executable(TestLZW
@@ -70,4 +75,5 @@ add_executable(TestLZW
         src/algorithms/LZW.cpp
         src/datastructures/Trie.cpp
         src/datastructures/HashTable.cpp
+        src/utils/FileIO.cpp
 )

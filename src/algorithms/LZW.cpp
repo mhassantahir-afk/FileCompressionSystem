@@ -1,3 +1,8 @@
+/*
+ * Mubashir Ali
+ * LZW Algorithm
+ */
+
 #include <fstream>
 #include <string>
 #include "datastructures/Trie.h"

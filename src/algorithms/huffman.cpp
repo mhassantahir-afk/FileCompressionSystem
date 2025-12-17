@@ -1,3 +1,8 @@
+/*
+ * Hassan Tahir
+ * Huffman Coding
+ */
+
 #include <iostream>
 #include <vector>
 #include "datastructures/HuffmanNode.h"

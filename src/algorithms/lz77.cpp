@@ -1,3 +1,8 @@
+/*
+ * Huzaifa Rauf
+ * LZ77 Algorithms
+ */
+
 #include "algorithms/lz77.h"
 #include "utils/FileIO.h"
 #include <iostream>

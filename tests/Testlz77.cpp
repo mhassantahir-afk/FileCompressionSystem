@@ -13,7 +13,7 @@ int main() {
 
     // Test compression
     cout << "Compressing file..." << endl;
-    lz.compress("../resources/TestFiles/uncompressed/uncompressed_4.txt", "../resources/TestFiles/compressed/CompressedFileOutofLZ77.lz77");
+    lz.compress("../resources/TestFiles/uncompressed/uncompressed_1.txt", "../resources/TestFiles/compressed/CompressedFileOutofLZ77.lz77");
     cout << "File compressed successfully!" << endl << endl;
 
     // Test decompression

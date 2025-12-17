@@ -16,14 +16,12 @@
 #include <filesystem>
 #include <algorithm>
 #include <memory>
-#include <cstring>
-
 // Include algorithm headers
 #include "algorithms/huffman.h"
 #include "algorithms/LZW.h"
 #include "algorithms/lz77.h"
 #include "algorithms/RLE.h"
-#include "algorithms/Deflate.h"
+#include "algorithms/deflate.h"
 #include "algorithms/ArithmeticCoding.h"
 
 // Include data structures
