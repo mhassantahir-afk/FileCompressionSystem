@@ -394,110 +394,6 @@ void displayResultsTable(const vector<AlgorithmResult>& results) {
 }
 
 /**
- * Analyzes results and provides summary
- */
-void displaySummary(const vector<AlgorithmResult>& results) {
-    if (results.empty()) {
-        cout << "No results to summarize.\n";
-        return;
-    }
-
-    // Find best compression ratio (lowest percentage)
-    const AlgorithmResult* bestRatio = nullptr;
-    const AlgorithmResult* worstRatio = nullptr;
-
-    // Find fastest algorithm
-    const AlgorithmResult* fastest = nullptr;
-    const AlgorithmResult* slowest = nullptr;
-
-    int successfulCount = 0;
-
-    for (const auto& result : results) {
-        if (result.success) {
-            successfulCount++;
-
-            // Check for best compression ratio
-            if (!bestRatio || result.compressionRatio < bestRatio->compressionRatio) {
-                bestRatio = &result;
-            }
-
-            // Check for worst compression ratio
-            if (!worstRatio || result.compressionRatio > worstRatio->compressionRatio) {
-                worstRatio = &result;
-            }
-
-            // Check for fastest
-            if (!fastest || result.timeMs < fastest->timeMs) {
-                fastest = &result;
-            }
-
-            // Check for slowest
-            if (!slowest || result.timeMs > slowest->timeMs) {
-                slowest = &result;
-            }
-        }
-    }
-
-    cout << "\nPERFORMANCE SUMMARY:\n";
-    cout << string(50, '-') << "\n";
-
-    cout << "Successful Algorithms: " << successfulCount << "/" << results.size() << "\n";
-
-    if (bestRatio) {
-        cout << "Best Compression: " << bestRatio->name
-             << " (" << fixed << setprecision(2) << bestRatio->compressionRatio << "%)\n";
-    }
-
-    if (worstRatio && worstRatio != bestRatio) {
-        cout << "Worst Compression: " << worstRatio->name
-             << " (" << fixed << setprecision(2) << worstRatio->compressionRatio << "%)\n";
-    }
-
-    if (fastest) {
-        cout << "Fastest: " << fastest->name
-             << " (" << fastest->timeMs << " ms)\n";
-    }
-
-    if (slowest && slowest != fastest) {
-        cout << "Slowest: " << slowest->name
-             << " (" << slowest->timeMs << " ms)\n";
-    }
-
-    // Calculate average compression ratio
-    if (successfulCount > 0) {
-        double totalRatio = 0;
-        for (const auto& result : results) {
-            if (result.success) {
-                totalRatio += result.compressionRatio;
-            }
-        }
-        cout << "Average Compression Ratio: " << fixed << setprecision(2)
-             << (totalRatio / successfulCount) << "%\n";
-    }
-
-    cout << string(50, '-') << "\n";
-
-    // Recommendation
-    cout << "\nRECOMMENDATION:\n";
-    if (bestRatio) {
-        cout << "For maximum compression: Use " << bestRatio->name << "\n";
-    }
-    if (fastest && fastest != bestRatio) {
-        cout << "For speed: Use " << fastest->name << "\n";
-    }
-
-    // Check for failed algorithms
-    if (successfulCount < results.size()) {
-        cout << "\nFailed Algorithms:\n";
-        for (const auto& result : results) {
-            if (!result.success) {
-                cout << "  • " << result.name << ": " << result.errorMessage << "\n";
-            }
-        }
-    }
-}
-
-/**
  * Performs RLE suitability analysis
  */
 void performRLEAnalysis(const string& filePath) {
@@ -583,7 +479,6 @@ int main() {
 
     // Display results
     displayResultsTable(results);
-    displaySummary(results);
 
     // Clean up any remaining temporary files
     cout << "\n🧹 Cleaning up temporary files...\n";
